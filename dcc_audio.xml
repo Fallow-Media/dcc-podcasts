@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+	<channel>
+		<title><![CDATA[Dublin City Council Meetings]]></title>
+		<description><![CDATA[Audio from Dublin City Council Meetings]]></description>
+		<link>http://github.com/dylang/node-rss</link>
+		<generator>Podcast for Node</generator>
+		<lastBuildDate>Mon, 12 Feb 2024 16:02:31 GMT</lastBuildDate>
+		<atom:link href="https://dccaudio.ams3.digitaloceanspaces.com/dcc_audio.xml" rel="self" type="application/rss+xml"/>
+		<author><![CDATA[civictech.ie]]></author>
+		<language><![CDATA[en-us]]></language>
+		<itunes:author>civictech.ie</itunes:author>
+		<itunes:summary>Audio from Dublin City Council Meetings</itunes:summary>
+		<itunes:owner>
+			<itunes:name>civictech.ie</itunes:name>
+			<itunes:email></itunes:email>
+		</itunes:owner>
+		<itunes:explicit>No</itunes:explicit>
+		<item>
+			<title><![CDATA[Climate Action, Environment and Energy SPC]]></title>
+			<guid isPermaLink="false">https://dublincity.public-i.tv/core/portal/webcast_interactive/849334</guid>
+			<dc:creator><![CDATA[civictech.ie]]></dc:creator>
+			<enclosure url="https://pub-053c89d750364744b7fbc049ec864a34.r2.dev/1707753212432_849334.mp3" length="29418224" type="audio/mpeg"/>
+			<content:encoded><![CDATA[Climate Action, Environment and Energy SPC
+31/01/2024 2.30 pm
+BY REMOTE VIDEO CONFERENCE - BY REMOTE VIDEO CONFERENCE]]></content:encoded>
+			<itunes:summary>Climate Action, Environment and Energy SPC
+31/01/2024 2.30 pm
+BY REMOTE VIDEO CONFERENCE - BY REMOTE VIDEO CONFERENCE</itunes:summary>
+			<itunes:explicit>No</itunes:explicit>
+		</item>
+	</channel>
+</rss>
