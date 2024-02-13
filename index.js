@@ -12,25 +12,13 @@ require('dotenv').config();
 // Define the path for the DO Space
 const space_url = process.env.R2_URL;
 
-
-
-/**
- *    url - string, path of file to download
- *    path - string, path of output file     
- */
-async function download (url, path) {
-	console.log('Downloading File...');
-	try {
-		const res = await fetch(url);
-		const fileStream = fs.createWriteStream(path);
-		await new Promise((resolve, reject) => {
-			res.body.pipe(fileStream);
-			res.body.on("error", reject);
-			fileStream.on("finish", resolve);
-		});
-	} catch (error) {
-		console.error(error);
-	}
+const slugify = text => {
+  return text.toString().toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
 };
 
 
@@ -40,7 +28,6 @@ async function download (url, path) {
  *    callback - function, fn (error, result)        
  */
 async function convert(input, output) {
-	console.log(input);
 	await new Promise((resolve, reject) => {
 		try {
 			ffmpeg(input)
@@ -255,11 +242,8 @@ async function update_xml(current_feed, new_item, audio_file) {
 		// Get the actual video link.
 		let video_link = await get_link(redirect_link);
 
-		console.log(video_link);
-
 		// Create the file names.
-		let video_file_name = `./tmp/${Date.now()}_${activity_id}.mp4`;
-		let audio_file_name = `${Date.now()}_${activity_id}.mp3`;
+		let audio_file_name = `./tmp/${Date.now()}_${slugify(item.title)}_${activity_id}.mp3`;
 
 		// Make sure the video is available
 		if (!is_avail(video_link)) continue;
@@ -271,15 +255,12 @@ async function update_xml(current_feed, new_item, audio_file) {
 		let meeting_info = get_meeting_info(item, activity_id);
 
 		// Download => Convert => Upload => Update Feed => Delete Video => Transcribe
-		// await download(video_link, video_file_name);
-		// await convert(video_file_name, `./tmp/${audio_file_name}`);
-
 		await convert(video_link, `./tmp/${audio_file_name}`);
 
 		await upload(`./tmp/${audio_file_name}`, audio_file_name); 
 		await update_xml(pod_feed, meeting_info, audio_file_name);
 
-		return await delete_file(video_file_name);
+		return await delete_file(`./tmp/${audio_file_name}`);
 		// return await transcribe(`./tmp/1616096362038_548471.mp3`);
 	}
 })();
