@@ -223,11 +223,11 @@ async function update_xml(current_feed, meetings) {
 		const stats = fs.statSync(`./tmp/${meeting.audio_file_name}`);
 	
 		// Set up new episode file info
-		meeting.enclosure.url = `${space_url}/${meeting.audio_file_name}`;
-		meeting.enclosure.size = stats.size;
+		meeting.meeting_info.enclosure.url = `${space_url}/${meeting.audio_file_name}`;
+		meeting.meeting_info.enclosure.size = stats.size;
 	
 		// Add item to feed
-		feed.addItem(meeting);
+		feed.addItem(meeting.meeting_info);
 	});
 
 	// Write new xml file
