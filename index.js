@@ -11,12 +11,14 @@ require('dotenv').config();
 
 const isProduction = (process.env.NODE_ENV === 'production');
 
-// FFMPEG_PATH='/opt/build/repo/bin/ffmpeg-git-20240213-amd64-static/';
+// FFMPEG_PATH='/opt/build/repo/bin/ffmpeg-git-20240213-amd64-static/ffmpeg'
+// FFPROBE_PATH='/opt/build/repo/bin/ffmpeg-git-20240213-amd64-static/ffprobe'
+// FFFASTSTART_PATH='/opt/build/repo/bin/ffmpeg-git-20240213-amd64-static/qt-faststart'
 
 if (isProduction === true) {
-	exec(`chmod +x ${process.env.FFMPEG_PATH}ffmpeg`);
-	exec(`chmod +x ${process.env.FFMPEG_PATH}ffprobe`);
-	exec(`chmod +x ${process.env.FFMPEG_PATH}qt-faststart`);
+	exec(`chmod +x ${process.env.FFMPEG_PATH}`);
+	exec(`chmod +x ${process.env.FFPROBE_PATH}`);
+	exec(`chmod +x ${process.env.FFFASTSTART_PATH}`);
 }
 
 // Define the path for the R2 Bucket
