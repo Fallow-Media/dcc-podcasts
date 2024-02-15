@@ -1,5 +1,5 @@
 node_modules
-tmp/**
+tmp/*.mp3
 .env
 .DS_Store
 Dockerfile
