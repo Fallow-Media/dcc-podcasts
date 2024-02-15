@@ -1,16 +1,27 @@
 const Parser = require('rss-parser');
-const parser = new Parser();
 const fetch = require('node-fetch');
 const ffmpeg = require('fluent-ffmpeg');
 const AWS = require("aws-sdk");
 const fs = require("fs");
 const Podcast = require('podcast');
-const SpeechToTextV1 = require('ibm-watson/speech-to-text/v1');
-const { IamAuthenticator } = require('ibm-watson/auth');
+// const SpeechToTextV1 = require('ibm-watson/speech-to-text/v1');
+// const { IamAuthenticator } = require('ibm-watson/auth');
+const Eleventy = require("@11ty/eleventy");
 require('dotenv').config();
 
-// Define the path for the DO Space
+const isProduction = (process.env.NODE_ENV === 'production');
+
+// FFMPEG_PATH='/opt/build/repo/bin/ffmpeg-git-20240213-amd64-static/';
+
+if (isProduction === true) {
+	exec(`chmod +x ${process.env.FFMPEG_PATH}ffmpeg`);
+	exec(`chmod +x ${process.env.FFMPEG_PATH}ffprobe`);
+	exec(`chmod +x ${process.env.FFMPEG_PATH}qt-faststart`);
+}
+
+// Define the path for the R2 Bucket
 const space_url = process.env.R2_URL;
+const parser = new Parser();
 
 const slugify = text => {
   return text.toString().toLowerCase()
@@ -174,7 +185,6 @@ function is_new(activity_id, pod_feed) {
 
 	let link_split = pod_feed.items[0].guid.split('/');
 	let latest_activity_id = link_split[link_split.length - 1];
-	console.log({activity_id, latest_activity_id});
 	return activity_id === latest_activity_id ? false : true;
 }
 
@@ -204,16 +214,19 @@ function get_meeting_info(item, activity_id) {
 	}
 }
 
-async function update_xml(current_feed, new_item, audio_file) {
+async function update_xml(current_feed, meetings) {
 	const feed = new Podcast(current_feed);
-	const stats = fs.statSync(`./tmp/${audio_file}`);
 
-	// Set up new episode file info
-	new_item.enclosure.url = `${space_url}/${audio_file}`;
-	new_item.enclosure.size = stats.size;
-
-	// Add item to feed
-	feed.addItem(new_item);
+	meetings.forEach(meeting => {
+		const stats = fs.statSync(`./tmp/${meeting.audio_file_name}`);
+	
+		// Set up new episode file info
+		meeting.enclosure.url = `${space_url}/${meeting.audio_file_name}`;
+		meeting.enclosure.size = stats.size;
+	
+		// Add item to feed
+		feed.addItem(meeting);
+	});
 
 	// Write new xml file
 	fs.writeFileSync('dcc_audio.xml', feed.buildXml('\t'));
@@ -222,15 +235,34 @@ async function update_xml(current_feed, new_item, audio_file) {
 	upload('dcc_audio.xml', 'dcc_audio.xml');
 }
 
+const pipeline = async (activity) => {
 
-(async () => {
+	let { video_link, audio_file_name } = activity;
+
+	// Download => Convert => Upload => Update Feed => Delete Video => Transcribe
+	await convert(video_link, `./tmp/${audio_file_name}`);
+
+	await upload(`./tmp/${audio_file_name}`, audio_file_name); 
+	// await update_xml(pod_feed, meeting_info, audio_file_name);
+
+	// return await delete_file(`./tmp/${audio_file_name}`);
+	// return await transcribe(`./tmp/${audio_file_name}`);
+}
+
+const check_for_new = async () => {
 
 	// Setup the RSS feeds
 	let dcc_feed = await parser.parseURL('https://dublincity.public-i.tv/core/data/7844');
 	
 	let pod_feed = await parser.parseURL(`${space_url}/dcc_audio.xml`);
-	
+
+	let newActivities = [];
+
+	let i = 0;
+
 	for (const item of dcc_feed.items) {
+
+		if (i === 2) break;
 
 		// Get the id of this particular meeting
 		let link_split = item.link.split('/');
@@ -243,24 +275,79 @@ async function update_xml(current_feed, new_item, audio_file) {
 		let video_link = await get_link(redirect_link);
 
 		// Create the file names.
-		let audio_file_name = `./tmp/${Date.now()}_${slugify(item.title)}_${activity_id}.mp3`;
+		let audio_file_name = `${Date.now()}_${slugify(item.title)}_${activity_id}.mp3`;
 
 		// Make sure the video is available
 		if (!is_avail(video_link)) continue;
 
 		// Check if the video is new
-		if (!is_new(activity_id, pod_feed)) continue;
+		if (!is_new(activity_id, pod_feed)) break;
 
 		// Get the meeting info to include with the podcast episode.
 		let meeting_info = get_meeting_info(item, activity_id);
 
-		// Download => Convert => Upload => Update Feed => Delete Video => Transcribe
-		await convert(video_link, `./tmp/${audio_file_name}`);
+		let activity = {
+			video_link: video_link,
+			audio_file_name: audio_file_name,
+			meeting_info: meeting_info
+		}
 
-		await upload(`./tmp/${audio_file_name}`, audio_file_name); 
-		await update_xml(pod_feed, meeting_info, audio_file_name);
+		newActivities.push(activity);
 
-		return await delete_file(`./tmp/${audio_file_name}`);
-		// return await transcribe(`./tmp/1616096362038_548471.mp3`);
+		i++;
 	}
-})();
+
+	if (newActivities.length > 0) {
+		console.log({newActivities});
+
+		// Convert the videos and upload them to R2
+		for (const activity of newActivities) {
+			await pipeline(activity);
+		}
+		
+		// Update and upload the podcast feed
+		await update_xml(pod_feed, newActivities);
+		
+		// Delete the tmp files
+		for (const activity of newActivities) {
+			await delete_file(`./tmp/${activity.audio_file_name}`);
+		}
+		return true;
+	} else {
+		return false;
+	}
+}
+
+const build = async () => {
+	let elev = new Eleventy( "./static/src", "./static/dist", {
+		// --quiet
+		quietMode: true,
+	
+		// --config
+		// configPath: ".eleventy.js",
+	
+		config: function(eleventyConfig) {
+			eleventyConfig.addGlobalData(
+				"podcastData",
+				async () => {
+					let pod_feed = await parser.parseURL(`${space_url}/dcc_audio.xml`);
+					pod_feed.items.forEach(item => {
+						let link_split = item.guid.split('/');
+						item.activity_id = link_split[link_split.length - 1];
+					});
+				  	return Promise.resolve(pod_feed);
+				}
+			  );
+		},
+	  });
+	
+	// Check for new episodes, convert and add to the feed if so.
+	let newPods = await check_for_new();
+
+	// If there are new episodes, rebuild the site.
+	if (newPods) {
+		elev.write();
+	}
+}
+
+build();

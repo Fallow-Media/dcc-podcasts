@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DCC Podcasts</title>
+</head>
+<body>
+    <h1>DCC Podcasts</h1>
+    <ul>
+        {%- for meeting in podcastData.items -%}
+          <li><a href="/meeting/{{ meeting.activity_id }}">{{ meeting.title }}</a></li>
+        {%- endfor -%}
+        </ul>
+</body>
+</html>
