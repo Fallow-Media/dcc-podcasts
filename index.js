@@ -305,6 +305,8 @@ const check_for_new = async () => {
 	
 	let pod_feed = await parser.parseURL(`${space_url}/dcc_audio.xml`);
 
+	console.log("DCC Feed Length: ", dcc_feed.items.length);
+
 	let newActivities = [];
 
 	let i = 0;
@@ -312,7 +314,7 @@ const check_for_new = async () => {
 	for (const item of dcc_feed.items) {
 
 		// Maximum of 10 new items at a time, because Netlify times out the build after 20 minutes.
-		if (i == 10) return;
+		if (i == 10) break;
 
 		// Get the id of this particular meeting
 		let link_split = item.link.split('/');
@@ -326,6 +328,8 @@ const check_for_new = async () => {
 
 		// Create the file names.
 		let audio_file_name = `${activity_id}_${slugify(item.title)}.mp3`;
+
+		console.log({audio_file_name});
 
 		// Make sure the video is available
 		if (!is_avail(video_link)) continue;
