@@ -38,14 +38,10 @@ a:hover {
 }
 
 .podcast-list {
-    margin-top: 50px;
     list-style: none;
     padding-left: 0;
     border-right: 3px solid black;
-    width: 50vw;
-    height: calc(100vh - 50px);
-    overflow: scroll;
-    flex: 1 0 50%;
+    flex: 1 0 100%;
 }
 
 .listed-podcast {
@@ -76,10 +72,30 @@ article a {
 main {
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap-reverse;
+    margin-top: 50px;
 }
 
 .about {
-    flex: 1 0 50%;
-    margin-top: 50px;
+    flex: 1 0 100%;
     padding: 16px 24px;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+@media (min-width: 1200px) {
+    main {
+        flex-wrap: nowrap;
+    }
+    .podcast-list {
+        width: 50vw;
+        flex: 1 0 50%;
+        height: calc(100vh - 50px);
+        overflow: scroll;
+        margin: 0;
+    }
+    .about {
+        flex: 1 0 50%;
+        font-size: 24px;
+    }
 }
