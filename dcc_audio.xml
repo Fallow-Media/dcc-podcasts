@@ -4,12 +4,12 @@
 		<description><![CDATA[Dublin City Council Meetings, made available as podcasts.]]></description>
 		<link>https://fallowmedia.com</link>
 		<generator>Podcast for Node</generator>
-		<lastBuildDate>Tue, 13 Feb 2024 16:45:06 GMT</lastBuildDate>
+		<lastBuildDate>Fri, 16 Feb 2024 14:58:10 GMT</lastBuildDate>
 		<atom:link href="https://pub-053c89d750364744b7fbc049ec864a34.r2.dev/dcc_audio.xml" rel="self" type="application/rss+xml"/>
 		<author><![CDATA[Fallow Media]]></author>
 		<language><![CDATA[en-us]]></language>
 		<itunes:author>Fallow Media</itunes:author>
-		<itunes:summary>Audio from Dublin City Council Meetings</itunes:summary>
+		<itunes:summary>Dublin City Council Meetings, made available as podcasts.</itunes:summary>
 		<itunes:owner>
 			<itunes:name>Fallow Media</itunes:name>
 			<itunes:email>dccpodcasts@fallowmedia.com</itunes:email>

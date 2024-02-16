@@ -7,6 +7,8 @@ const Podcast = require('podcast');
 // const SpeechToTextV1 = require('ibm-watson/speech-to-text/v1');
 // const { IamAuthenticator } = require('ibm-watson/auth');
 const Eleventy = require("@11ty/eleventy");
+const sqlite3 = require('sqlite3');
+const open = require("sqlite").open;
 require('dotenv').config();
 
 const isProduction = (process.env.NODE_ENV === 'production');
@@ -25,6 +27,53 @@ if (isProduction === true) {
 const space_url = process.env.R2_URL;
 const parser = new Parser();
 
+// Setup the DB
+const db = new sqlite3.Database('./podcasts.db');
+
+const handle_db_setup = db => {
+	/*
+		podcast: {
+			activity_id: INTEGER,
+			audio_file_url: TEXT,
+			title: TEXT,
+			link: TEXT,
+			content: TEXT,
+			guid: TEXT,
+			pubDate: TEXT,
+			transcript: TEXT
+		}
+	*/
+	db.exec('CREATE TABLE IF NOT EXISTS podcasts (activity_id INT PRIMARY KEY NOT NULL, audio_file_url TEXT, title TEXT, link TEXT, content TEXT, guid TEXT, pubDate TEXT, transcript TEXT);');
+}
+
+const save_to_db = async (db, meeting) => {
+	return new Promise((resolve, reject) => {
+		db.run('INSERT INTO podcasts (activity_id, audio_file_url, title, link, content, guid, pubDate, transcript) VALUES ($activity_id, $audio_file_url, $title, $link, $content, $guid, $pubDate, $transcript)', {
+			$activity_id: meeting.meeting_info.activity_id, 
+			$audio_file_url: meeting.audio_file_name, 
+			$title: meeting.meeting_info.title, 
+			$link: meeting.meeting_info.link, 
+			$content: meeting.meeting_info.content, 
+			$guid: meeting.meeting_info.guid, 
+			$pubDate: meeting.meeting_info.pubDate, 
+			$transcript: meeting.meeting_info.transcript
+		}, function (ctx) {
+			if (ctx) {
+				console.error(ctx);
+				reject(ctx);
+			} else {
+				console.log("Sucessfully saved to db.")
+				resolve(true);
+			}
+		});
+	})
+};
+
+/**
+ * 
+ * @param { string } text 
+ * @returns { string } slugified text
+ */
 const slugify = text => {
   return text.toString().toLowerCase()
     .replace(/\s+/g, '-')
@@ -207,6 +256,7 @@ function get_meeting_info(item, activity_id) {
 		guid: item.guid,
 		pubDate: item.pubDate,
 		activity_id: activity_id,
+		transcript: null,
 		enclosure: {
 			url: null,
 			size: null
@@ -244,7 +294,7 @@ const pipeline = async (activity) => {
 	await convert(video_link, `./tmp/${audio_file_name}`);
 
 	await upload(`./tmp/${audio_file_name}`, audio_file_name); 
-	
+
 	// return await transcribe(`./tmp/${audio_file_name}`);
 }
 
@@ -257,11 +307,7 @@ const check_for_new = async () => {
 
 	let newActivities = [];
 
-	let i = 0;
-
 	for (const item of dcc_feed.items) {
-
-		if (i === 2) break;
 
 		// Get the id of this particular meeting
 		let link_split = item.link.split('/');
@@ -280,7 +326,7 @@ const check_for_new = async () => {
 		if (!is_avail(video_link)) continue;
 
 		// Check if the video is new
-		if (!is_new(activity_id, pod_feed)) break;
+		if (!is_new(activity_id, pod_feed)) continue;
 
 		// Get the meeting info to include with the podcast episode.
 		let meeting_info = get_meeting_info(item, activity_id);
@@ -292,8 +338,7 @@ const check_for_new = async () => {
 		}
 
 		newActivities.push(activity);
-
-		i++;
+		
 	}
 
 	if (newActivities.length > 0) {
@@ -307,8 +352,9 @@ const check_for_new = async () => {
 		// Update and upload the podcast feed
 		await update_xml(pod_feed, newActivities);
 		
-		// Delete the tmp files
+		// Save to db and delete the tmp files
 		for (const activity of newActivities) {
+			await save_to_db(db, activity);
 			await delete_file(`./tmp/${activity.audio_file_name}`);
 		}
 		return true;
@@ -318,6 +364,9 @@ const check_for_new = async () => {
 }
 
 const build = async () => {
+
+	handle_db_setup(db);
+	
 	let elev = new Eleventy( "./static/src", "./static/dist", {
 		// --quiet
 		quietMode: true,
