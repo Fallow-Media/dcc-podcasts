@@ -27,7 +27,7 @@ const space_url = process.env.R2_URL;
 const parser = new Parser();
 
 // Setup the DB
-const db = new sqlite3.Database('./podcasts.db');
+// const db = new sqlite3.Database('./podcasts.db');
 
 const handle_db_setup = db => {
 	/*
@@ -314,7 +314,7 @@ const check_for_new = async () => {
 	for (const item of dcc_feed.items) {
 
 		// Maximum of 10 new items at a time, because Netlify times out the build after 20 minutes.
-		if (i == 1) break;
+		if (i == 10) break;
 
 		// Get the id of this particular meeting
 		let link_split = item.link.split('/');
@@ -365,7 +365,7 @@ const check_for_new = async () => {
 		
 		// Save to db and delete the tmp files
 		for (const activity of newActivities) {
-			await save_to_db(db, activity);
+			// await save_to_db(db, activity);
 			await delete_file(`./tmp/${activity.audio_file_name}`);
 		}
 		return true;
@@ -377,7 +377,7 @@ const check_for_new = async () => {
 
 const build = async () => {
 
-	handle_db_setup(db);
+	// handle_db_setup(db);
 	
 	let elev = new Eleventy( "./static/src", "./static/dist", {
 		// --quiet
