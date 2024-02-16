@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node index.js",
-    "build": "node index.js"
+    "serve": "npx @11ty/eleventy --serve --port=8002",
+    "build": "node index.js",
+    "fetch": "node fetch.js",
+    "dev": "npm run fetch && npm run serve"
   },
   "author": "",
   "license": "ISC",

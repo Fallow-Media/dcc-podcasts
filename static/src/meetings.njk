@@ -6,4 +6,26 @@ pagination:
 permalink: "meeting/{{ meeting.activity_id }}/"
 ---
 
-<h1>{{ meeting.title }}</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DCC Podcasts</title>
+    <link rel="stylesheet" href="/css/bundle.css">
+</head>
+<body>
+  <header>
+    <a href="/">City Council Podcasts</a>
+   </header>
+
+  <article>
+    <h1>{{ meeting.title }}</h1>
+    <p class="podcast-details">{{ meeting["content:encoded"] | podcastDate }} | {{ meeting["content:encoded"] | podcastLocation }}</p>
+    
+    <audio src="{{meeting.enclosure.url}}" controls></audio>
+
+    <p>You can find the video recording of this meeting, as well as the full agenda and speaker details, on <a href="{{meeting.guid}}" target="_blank">the Dublin City Council website</a>.</p>
+  </article>
+</body>
+</html>

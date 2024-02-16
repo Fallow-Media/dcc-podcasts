@@ -384,31 +384,16 @@ const build = async () => {
 		quietMode: true,
 	
 		// --config
-		// configPath: ".eleventy.js",
+		configPath: ".eleventy.js",
 	
-		config: function(eleventyConfig) {
-			eleventyConfig.addGlobalData(
-				"podcastData",
-				async () => {
-					let pod_feed = await parser.parseURL(`${space_url}/dcc_audio.xml`);
-					pod_feed.items.forEach(item => {
-						let link_split = item.guid.split('/');
-						item.activity_id = link_split[link_split.length - 1];
-					});
-				  	return Promise.resolve(pod_feed);
-				}
-			  );
-		},
 	  });
 	
 	// Check for new episodes, convert and add to the feed if so.
 	console.log("Checking for new pods...");
-	let newPods = await check_for_new();
+	await check_for_new();
 
-	// If there are new episodes, rebuild the site.
-	if (newPods) {
-		elev.write();
-	}
+	// Rebuild the site.
+	elev.write();
 }
 
 build();
