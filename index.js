@@ -314,7 +314,7 @@ const check_for_new = async () => {
 	for (const item of dcc_feed.items) {
 
 		// Maximum of 10 new items at a time, because Netlify times out the build after 20 minutes.
-		if (i == 10) break;
+		if (i == 1) break;
 
 		// Get the id of this particular meeting
 		let link_split = item.link.split('/');
