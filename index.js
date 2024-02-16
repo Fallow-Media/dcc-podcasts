@@ -241,13 +241,10 @@ const pipeline = async (activity) => {
 
 	let { video_link, audio_file_name } = activity;
 
-	// Download => Convert => Upload => Update Feed => Delete Video => Transcribe
 	await convert(video_link, `./tmp/${audio_file_name}`);
 
 	await upload(`./tmp/${audio_file_name}`, audio_file_name); 
-	// await update_xml(pod_feed, meeting_info, audio_file_name);
-
-	// return await delete_file(`./tmp/${audio_file_name}`);
+	
 	// return await transcribe(`./tmp/${audio_file_name}`);
 }
 
