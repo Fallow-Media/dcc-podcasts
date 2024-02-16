@@ -17,6 +17,7 @@ module.exports = function(eleventyConfig) {
       }
     );
     eleventyConfig.addPassthroughCopy("static/src/css/bundle.css");
+    eleventyConfig.addPassthroughCopy("dcc_audio.xml");
 
     // Filter for content
     eleventyConfig.addFilter("podcastDate", (content) => { 

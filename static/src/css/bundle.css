@@ -44,8 +44,8 @@ a:hover {
     border-right: 3px solid black;
     width: 50vw;
     height: calc(100vh - 50px);
-    position: fixed;
     overflow: scroll;
+    flex: 1 0 50%;
 }
 
 .listed-podcast {
@@ -71,4 +71,15 @@ article p {
 
 article a {
     text-decoration: underline;
+}
+
+main {
+    display: flex;
+    justify-content: space-between;
+}
+
+.about {
+    flex: 1 0 50%;
+    margin-top: 50px;
+    padding: 16px 24px;
 }

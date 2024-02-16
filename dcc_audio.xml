@@ -2,19 +2,19 @@
 	<channel>
 		<title><![CDATA[Dublin City Council Meetings]]></title>
 		<description><![CDATA[Dublin City Council Meetings, made available as podcasts.]]></description>
-		<link>http://github.com/dylang/node-rss</link>
+		<link>https://fallowmedia.com</link>
 		<generator>Podcast for Node</generator>
 		<lastBuildDate>Fri, 16 Feb 2024 17:09:57 GMT</lastBuildDate>
 		<atom:link href="https://pub-053c89d750364744b7fbc049ec864a34.r2.dev/dcc_audio.xml" rel="self" type="application/rss+xml"/>
-		<author><![CDATA[Fallow Media]]></author>
 		<language><![CDATA[en-us]]></language>
 		<itunes:author>Fallow Media</itunes:author>
 		<itunes:summary>Dublin City Council Meetings, made available as podcasts.</itunes:summary>
 		<itunes:owner>
 			<itunes:name>Fallow Media</itunes:name>
-			<itunes:email></itunes:email>
+			<itunes:email>dccpodcasts@fallowmedia.com</itunes:email>
 		</itunes:owner>
-		<itunes:explicit>No</itunes:explicit>
+		<itunes:explicit>False</itunes:explicit>
+		<itunes:category text="Government" />
 		<item>
 			<title><![CDATA[Housing SPC]]></title>
 			<guid isPermaLink="false">https://dublincity.public-i.tv/core/portal/webcast_interactive/854939</guid>
@@ -26,7 +26,7 @@ Council Chamber, City Hall, Dame Street, Dublin 2.]]></content:encoded>
 			<itunes:summary>Housing SPC
 14/02/2024 11.00 am
 Council Chamber, City Hall, Dame Street, Dublin 2.</itunes:summary>
-			<itunes:explicit>No</itunes:explicit>
+			<itunes:explicit>False</itunes:explicit>
 		</item>
 		<item>
 			<title><![CDATA[Central Area Committee]]></title>
@@ -39,7 +39,7 @@ Council Chamber, City Hall, Dame Street, Dublin 2 and by remote video conferenci
 			<itunes:summary>Central Area Committee
 13/02/2024 10.00 am
 Council Chamber, City Hall, Dame Street, Dublin 2 and by remote video conferencing</itunes:summary>
-			<itunes:explicit>No</itunes:explicit>
+			<itunes:explicit>False</itunes:explicit>
 		</item>
 		<item>
 			<title><![CDATA[Monthly Council Meeting]]></title>
@@ -52,7 +52,7 @@ Council Chamber, City Hall, Dame Street, Dublin 2.]]></content:encoded>
 			<itunes:summary>Monthly Council Meeting
 12/02/2024 6.15 pm
 Council Chamber, City Hall, Dame Street, Dublin 2.</itunes:summary>
-			<itunes:explicit>No</itunes:explicit>
+			<itunes:explicit>False</itunes:explicit>
 		</item>
 		<item>
 			<title><![CDATA[South East Area Committee]]></title>
@@ -65,7 +65,7 @@ Council Chamber - City Hall]]></content:encoded>
 			<itunes:summary>South East Area Committee
 12/02/2024 2.30 pm
 Council Chamber - City Hall</itunes:summary>
-			<itunes:explicit>No</itunes:explicit>
+			<itunes:explicit>False</itunes:explicit>
 		</item>
 		<item>
 			<title><![CDATA[Traffic and Transport SPC]]></title>
@@ -78,7 +78,7 @@ Council Chamber, City Hall, Dame Street, Dublin 2.]]></content:encoded>
 			<itunes:summary>Traffic and Transport SPC
 07/02/2024 3.00 pm
 Council Chamber, City Hall, Dame Street, Dublin 2.</itunes:summary>
-			<itunes:explicit>No</itunes:explicit>
+			<itunes:explicit>False</itunes:explicit>
 		</item>
 		<item>
 			<title><![CDATA[Climate Action, Environment and Energy SPC]]></title>
@@ -91,7 +91,7 @@ BY REMOTE VIDEO CONFERENCE - BY REMOTE VIDEO CONFERENCE]]></content:encoded>
 			<itunes:summary>Climate Action, Environment and Energy SPC
 31/01/2024 2.30 pm
 BY REMOTE VIDEO CONFERENCE - BY REMOTE VIDEO CONFERENCE</itunes:summary>
-			<itunes:explicit>No</itunes:explicit>
+			<itunes:explicit>False</itunes:explicit>
 		</item>
 		<item>
 			<title><![CDATA[Economic Development and Enterprise SPC]]></title>
@@ -104,7 +104,7 @@ Hybrid - Council Chamber, City Hall and by Remote Video Conference]]></content:e
 			<itunes:summary>Economic Development and Enterprise SPC
 23/01/2024 3.30 pm
 Hybrid - Council Chamber, City Hall and by Remote Video Conference</itunes:summary>
-			<itunes:explicit>No</itunes:explicit>
+			<itunes:explicit>False</itunes:explicit>
 		</item>
 		<item>
 			<title><![CDATA[Finance SPC]]></title>
@@ -117,7 +117,7 @@ Council Chamber, City Hall, Dame Street, Dublin 2.]]></content:encoded>
 			<itunes:summary>Finance SPC
 18/01/2024 2.30 pm
 Council Chamber, City Hall, Dame Street, Dublin 2.</itunes:summary>
-			<itunes:explicit>No</itunes:explicit>
+			<itunes:explicit>False</itunes:explicit>
 		</item>
 		<item>
 			<title><![CDATA[South Central Area Committee]]></title>
@@ -130,7 +130,7 @@ Council Chamber, City Hall, Dame Street, Dublin 2.]]></content:encoded>
 			<itunes:summary>South Central Area Committee
 17/01/2024 3.00 pm
 Council Chamber, City Hall, Dame Street, Dublin 2.</itunes:summary>
-			<itunes:explicit>No</itunes:explicit>
+			<itunes:explicit>False</itunes:explicit>
 		</item>
 		<item>
 			<title><![CDATA[Housing SPC]]></title>
@@ -143,7 +143,7 @@ Council Chamber, City Hall, Dame Street, Dublin 2.]]></content:encoded>
 			<itunes:summary>Housing SPC
 17/01/2024 11.00 am
 Council Chamber, City Hall, Dame Street, Dublin 2.</itunes:summary>
-			<itunes:explicit>No</itunes:explicit>
+			<itunes:explicit>False</itunes:explicit>
 		</item>
 	</channel>
 </rss>

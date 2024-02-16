@@ -10,13 +10,20 @@
     <header>
       <a href="/">City Council Podcasts</a>
     </header>
-    <ul class="podcast-list">
+
+    <main>
+      <ul class="podcast-list">
         {%- for meeting in podcastData.items -%}
           <li class="listed-podcast">
             <a class="podcast-link" href="/meeting/{{ meeting.activity_id }}">{{ meeting.title }}</a>
             <p class="podcast-details">{{ meeting["content:encoded"] | podcastDate }} | {{ meeting["content:encoded"] | podcastLocation }}</p>
           </li>
         {%- endfor -%}
-        </ul>
+      </ul>
+      <section class="about">
+        <p>This project makes Dublin City Council meetings available as podcasts, making it easier to subscribe and follow the council's activity.</p>
+        <p>A <a href="https://fallowmedia.com">Fallow Media</a> project.
+      </section>
+    </main>
 </body>
 </html>
