@@ -3,4 +3,4 @@ tmp/*.mp3
 .env
 .DS_Store
 Dockerfile
-static/dist
+static/dist/**

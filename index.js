@@ -366,6 +366,7 @@ const check_for_new = async () => {
 		}
 		return true;
 	} else {
+		console.log("No new activities found...");
 		return false;
 	}
 }
@@ -397,6 +398,7 @@ const build = async () => {
 	  });
 	
 	// Check for new episodes, convert and add to the feed if so.
+	console.log("Checking for new pods...");
 	let newPods = await check_for_new();
 
 	// If there are new episodes, rebuild the site.
