@@ -8,7 +8,6 @@ const Podcast = require('podcast');
 // const { IamAuthenticator } = require('ibm-watson/auth');
 const Eleventy = require("@11ty/eleventy");
 const sqlite3 = require('sqlite3');
-const open = require("sqlite").open;
 require('dotenv').config();
 
 const isProduction = (process.env.NODE_ENV === 'production');
