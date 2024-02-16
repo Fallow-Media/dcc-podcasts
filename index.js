@@ -268,16 +268,17 @@ function get_meeting_info(item, activity_id) {
 async function update_xml(current_feed, meetings) {
 	const feed = new Podcast(current_feed);
 
-	meetings.forEach(meeting => {
+	for (const meeting of meetings) {
 		const stats = fs.statSync(`./tmp/${meeting.audio_file_name}`);
-	
+
 		// Set up new episode file info
 		meeting.meeting_info.enclosure.url = `${space_url}/${meeting.audio_file_name}`;
 		meeting.meeting_info.enclosure.size = stats.size;
 	
 		// Add item to feed
 		feed.addItem(meeting.meeting_info);
-	});
+	}
+
 
 	// Write new xml file
 	fs.writeFileSync('dcc_audio.xml', feed.buildXml('\t'));
@@ -306,7 +307,12 @@ const check_for_new = async () => {
 
 	let newActivities = [];
 
+	let i = 0;
+
 	for (const item of dcc_feed.items) {
+
+		// Maximum of 10 new items at a time, because Netlify times out the build after 20 minutes.
+		if (i == 10) return;
 
 		// Get the id of this particular meeting
 		let link_split = item.link.split('/');
@@ -319,13 +325,13 @@ const check_for_new = async () => {
 		let video_link = await get_link(redirect_link);
 
 		// Create the file names.
-		let audio_file_name = `${Date.now()}_${slugify(item.title)}_${activity_id}.mp3`;
+		let audio_file_name = `${activity_id}_${slugify(item.title)}.mp3`;
 
 		// Make sure the video is available
 		if (!is_avail(video_link)) continue;
 
 		// Check if the video is new
-		if (!is_new(activity_id, pod_feed)) continue;
+		if (!is_new(activity_id, pod_feed)) break;
 
 		// Get the meeting info to include with the podcast episode.
 		let meeting_info = get_meeting_info(item, activity_id);
@@ -337,11 +343,13 @@ const check_for_new = async () => {
 		}
 
 		newActivities.push(activity);
-		
+
+		i++;
 	}
 
 	if (newActivities.length > 0) {
-		console.log({newActivities});
+
+		console.log("New Activities: ", newActivities.length);
 
 		// Convert the videos and upload them to R2
 		for (const activity of newActivities) {
