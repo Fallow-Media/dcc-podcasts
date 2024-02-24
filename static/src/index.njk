@@ -13,10 +13,10 @@
 
     <main>
       <ul class="podcast-list">
-        {%- for meeting in podcastData.items -%}
+        {%- for meeting in podcastData -%}
           <li class="listed-podcast">
             <a class="podcast-link" href="/meeting/{{ meeting.activity_id }}">{{ meeting.title }}</a>
-            <p class="podcast-details">{{ meeting["content:encoded"] | podcastDate }} | {{ meeting["content:encoded"] | podcastLocation }}</p>
+            <p class="podcast-details">{{ meeting.isoDate | podcastDate }} | {{ meeting.content | podcastLocation }}</p>
           </li>
         {%- endfor -%}
       </ul>

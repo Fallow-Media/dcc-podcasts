@@ -3,11 +3,8 @@ const fetch = require('node-fetch');
 const ffmpeg = require('fluent-ffmpeg');
 const AWS = require("aws-sdk");
 const fs = require("fs");
-const Podcast = require('podcast');
-// const SpeechToTextV1 = require('ibm-watson/speech-to-text/v1');
-// const { IamAuthenticator } = require('ibm-watson/auth');
 const Eleventy = require("@11ty/eleventy");
-const sqlite3 = require('sqlite3');
+const createClient = require("@supabase/supabase-js").createClient;
 require('dotenv').config();
 
 const isProduction = (process.env.NODE_ENV === 'production');
@@ -26,46 +23,22 @@ if (isProduction === true) {
 const space_url = process.env.R2_URL;
 const parser = new Parser();
 
-// Setup the DB
-// const db = new sqlite3.Database('./podcasts.db');
-
-const handle_db_setup = db => {
-	/*
-		podcast: {
-			activity_id: INTEGER,
-			audio_file_url: TEXT,
-			title: TEXT,
-			link: TEXT,
-			content: TEXT,
-			guid: TEXT,
-			pubDate: TEXT,
-			transcript: TEXT
-		}
-	*/
-	db.exec('CREATE TABLE IF NOT EXISTS podcasts (activity_id INT PRIMARY KEY NOT NULL, audio_file_url TEXT, title TEXT, link TEXT, content TEXT, guid TEXT, pubDate TEXT, transcript TEXT);');
-}
-
-const save_to_db = async (db, meeting) => {
-	return new Promise((resolve, reject) => {
-		db.run('INSERT INTO podcasts (activity_id, audio_file_url, title, link, content, guid, pubDate, transcript) VALUES ($activity_id, $audio_file_url, $title, $link, $content, $guid, $pubDate, $transcript)', {
-			$activity_id: meeting.meeting_info.activity_id, 
-			$audio_file_url: meeting.audio_file_name, 
-			$title: meeting.meeting_info.title, 
-			$link: meeting.meeting_info.link, 
-			$content: meeting.meeting_info.content, 
-			$guid: meeting.meeting_info.guid, 
-			$pubDate: meeting.meeting_info.pubDate, 
-			$transcript: meeting.meeting_info.transcript
-		}, function (ctx) {
-			if (ctx) {
-				console.error(ctx);
-				reject(ctx);
-			} else {
-				console.log("Sucessfully saved to db.")
-				resolve(true);
-			}
-		});
-	})
+// Save to Supabase
+const save_to_db = async (meeting) => {
+	let dataToSave = {
+		activity_id: meeting.meeting_info.activity_id, 
+		audio_file_url: meeting.audio_file_name, 
+		title: meeting.meeting_info.title, 
+		link: meeting.meeting_info.link, 
+		content: meeting.meeting_info.content, 
+		guid: meeting.meeting_info.guid, 
+		isoDate: meeting.meeting_info.isoDate, 
+		transcript: meeting.meeting_info.transcript,
+		size: meeting.meeting_info.enclosure.size
+	};
+	const supabase = createClient(process.env.SUPA_URL, process.env.SUPA_KEY);
+	const { error } = await supabase.from('meetings').insert(dataToSave);
+	console.log({error});
 };
 
 /**
@@ -154,7 +127,7 @@ async function upload(input, output) {
 /**
  * audio_file_path – string, path of the file to transcribe
  */
-async function transcribe(audio_file_path) {
+/* async function transcribe(audio_file_path) {
 	console.log('Beginning Transcription...');
 
 	// Authenticate
@@ -213,7 +186,8 @@ async function transcribe(audio_file_path) {
 			reject(error);
 		}
 	});
-}
+} */
+
 
 async function delete_file(video_file_name) {
 	console.log('Deleting Video File...');
@@ -229,13 +203,43 @@ function is_avail(video_link) {
 	return video_link.includes('not-available') ? false : true;
 }
 
-function is_new(activity_id, pod_feed) {
-	// Check here if we've already processed this video.
-	if (!pod_feed.items[0]) return true;
 
-	let link_split = pod_feed.items[0].guid.split('/');
-	let latest_activity_id = link_split[link_split.length - 1];
-	return activity_id === latest_activity_id ? false : true;
+const get_remote_files = async () => {
+    const r2Endpoint = new AWS.Endpoint(process.env.R2_ENDPOINT);
+	const s3 = new AWS.S3({
+		endpoint: r2Endpoint, 
+		accessKeyId: process.env.R2_KEY, 
+		secretAccessKey: process.env.R2_SECRET
+	});
+
+	let data = await new Promise((resolve, reject) => {
+		try {
+            s3.listObjectsV2({Bucket: process.env.R2_NAME}, function(err, data) {
+                if (err) {reject(err)} else {
+                    resolve(data.Contents);
+                };
+            });
+		} catch (error) {
+			console.log(error);
+			reject(error)
+		}
+	});
+
+    return data.reduce((r, f) => {
+        if (f.Key.includes(".mp3")) {
+            r.push({
+                activity_id: f.Key.split("_")[0],
+                url: `${space_url}/${f.Key}`,
+                size: f.Size
+            })
+        }
+        return r;
+    }, []);
+}
+
+
+function is_new(activity_id, files) {
+	return (files.find(f => f.activity_id == activity_id)) ? false : true;
 }
 
 const get_link = async (redirect_link) => {
@@ -254,6 +258,7 @@ function get_meeting_info(item, activity_id) {
 		content: item.content,
 		guid: item.guid,
 		pubDate: item.pubDate,
+		isoDate: item.isoDate,
 		activity_id: activity_id,
 		transcript: null,
 		enclosure: {
@@ -265,26 +270,9 @@ function get_meeting_info(item, activity_id) {
 	}
 }
 
-async function update_xml(current_feed, meetings) {
-	const feed = new Podcast(current_feed);
-
-	for (const meeting of meetings) {
-		const stats = fs.statSync(`./tmp/${meeting.audio_file_name}`);
-
-		// Set up new episode file info
-		meeting.meeting_info.enclosure.url = `${space_url}/${meeting.audio_file_name}`;
-		meeting.meeting_info.enclosure.size = stats.size;
-	
-		// Add item to feed
-		feed.addItem(meeting.meeting_info);
-	}
-
-
-	// Write new xml file
-	fs.writeFileSync('dcc_audio.xml', feed.buildXml('\t'));
-
-	// Update existing feed
-	upload('dcc_audio.xml', 'dcc_audio.xml');
+const get_size = async (audio_file_name) => {
+	const stats = fs.statSync(`./tmp/${audio_file_name}`);
+	return stats.size;
 }
 
 const pipeline = async (activity) => {
@@ -292,6 +280,9 @@ const pipeline = async (activity) => {
 	let { video_link, audio_file_name } = activity;
 
 	await convert(video_link, `./tmp/${audio_file_name}`);
+
+	activity.meeting_info.enclosure.size = get_size(audio_file_name);
+	activity.meeting_info.enclosure.url = `${space_url}/${audio_file_name}`;
 
 	await upload(`./tmp/${audio_file_name}`, audio_file_name); 
 
@@ -302,10 +293,8 @@ const check_for_new = async () => {
 
 	// Setup the RSS feeds
 	let dcc_feed = await parser.parseURL('https://dublincity.public-i.tv/core/data/7844');
-	
-	let pod_feed = await parser.parseURL(`${space_url}/dcc_audio.xml`);
 
-	console.log("DCC Feed Length: ", dcc_feed.items.length);
+	let files = await get_remote_files();
 
 	let newActivities = [];
 
@@ -335,7 +324,7 @@ const check_for_new = async () => {
 		if (!is_avail(video_link)) continue;
 
 		// Check if the video is new
-		if (!is_new(activity_id, pod_feed)) break;
+		if (!is_new(activity_id, files)) break;
 
 		// Get the meeting info to include with the podcast episode.
 		let meeting_info = get_meeting_info(item, activity_id);
@@ -360,12 +349,9 @@ const check_for_new = async () => {
 			await pipeline(activity);
 		}
 		
-		// Update and upload the podcast feed
-		await update_xml(pod_feed, newActivities);
-		
 		// Save to db and delete the tmp files
 		for (const activity of newActivities) {
-			// await save_to_db(db, activity);
+			await save_to_db(activity);
 			await delete_file(`./tmp/${activity.audio_file_name}`);
 		}
 		return true;
@@ -376,8 +362,6 @@ const check_for_new = async () => {
 }
 
 const build = async () => {
-
-	// handle_db_setup(db);
 	
 	let elev = new Eleventy( "./static/src", "./static/dist", {
 		// --quiet

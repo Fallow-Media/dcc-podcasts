@@ -1,6 +1,6 @@
 ---
 pagination:
-    data: podcastData.items
+    data: podcastData
     size: 1
     alias: meeting
 permalink: "meeting/{{ meeting.activity_id }}/"
@@ -21,9 +21,9 @@ permalink: "meeting/{{ meeting.activity_id }}/"
 
   <article>
     <h1>{{ meeting.title }}</h1>
-    <p class="podcast-details">{{ meeting["content:encoded"] | podcastDate }} | {{ meeting["content:encoded"] | podcastLocation }}</p>
+    <p class="podcast-details">{{ meeting.isoDate | podcastDate }} | {{ meeting.content | podcastLocation }}</p>
     
-    <audio src="{{meeting.enclosure.url}}" controls></audio>
+    <audio src="{{meeting.audio_file_url}}" controls></audio>
 
     <p>You can find the video recording of this meeting, as well as the full agenda and speaker details, on <a href="{{meeting.guid}}" target="_blank">the Dublin City Council website</a>.</p>
   </article>

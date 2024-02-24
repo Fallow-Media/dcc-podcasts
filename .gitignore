@@ -4,3 +4,4 @@ tmp/*.mp3
 .DS_Store
 Dockerfile
 static/dist/**
+seed.js

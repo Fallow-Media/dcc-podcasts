@@ -1,0 +1,40 @@
+---json
+{
+  "permalink": "feed.xml",
+  "eleventyExcludeFromCollections": true,
+  "metadata": {
+    "title": "Dublin City Council Meetings",
+    "subtitle": "Dublin City Council Meetings, made available as podcasts.",
+    "language": "en-ie",
+    "url": "https://dcc-meetings.netlify.app/",
+    "author": {
+      "name": "Fallow Media",
+      "email": "dccmeetings@fallowmedia.com"
+    }
+  }
+}
+---
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:base="{{ metadata.url }}">
+  <title>{{ metadata.title }}</title>
+  <subtitle>{{ metadata.subtitle }}</subtitle>
+  <description>{{ metadata.subtitle }}</description>
+  <link href="{{ permalink | absoluteUrl(metadata.url) }}" rel="self"/>
+  <link href="{{ metadata.url }}"/>
+  <id>{{ metadata.url }}</id>
+  <author>
+    <name>{{ metadata.author.name }}</name>
+    <email>{{ metadata.author.email }}</email>
+  </author>
+  {%- for meeting in podcastData %}
+  <entry>
+
+    <title>{{ meeting.title }}</title>
+    <guid isPermaLink="true">{{meeting.guid}}</guid>
+    <enclosure url="{{meeting.audio_file_url}}" length="{{meeting.size}}" type="audio/mpeg"/>
+    <content:encoded>{{meeting.content}}</content:encoded>
+    <itunes:summary>{{meeting.content}}</itunes:summary>
+    <itunes:explicit>No</itunes:explicit>
+  </entry>
+  {%- endfor %}
+</feed>
