@@ -34,7 +34,7 @@
     <language>en</language>
   </channel>
   {%- for meeting in podcastData %}
-  <entry>
+  <item>
 
     <title>{{ meeting.title }}</title>
     <guid isPermaLink="true">{{meeting.guid}}</guid>
@@ -45,6 +45,6 @@
     <pubDate>{{ meeting.isoDate | feedDate }}</pubDate>
     <link>{{meeting.guid}}</link>
     <description>{{meeting.content}}</description>
-  </entry>
+  </item>
   {%- endfor %}
 </rss>
