@@ -11,13 +11,19 @@ module.exports = function(eleventyConfig) {
         return data.reverse();
       }
     );
+
     eleventyConfig.addPassthroughCopy("static/src/css/bundle.css");
-    // eleventyConfig.addPassthroughCopy("dcc_audio.xml");
+    eleventyConfig.addPassthroughCopy("static/src/council-pods-test-image.jpg");
 
     // Filter for content
     eleventyConfig.addFilter("podcastDate", (date) => { 
       let d = new Date(date);
       return d.toLocaleString('en-GB', { timeZone: 'UTC' })
+    });
+
+    eleventyConfig.addFilter("feedDate", (date) => { 
+      let d = date ? new Date(date) : new Date();
+      return d.toUTCString();
     });
 
     eleventyConfig.addFilter("podcastLocation", (content) => { 
@@ -26,6 +32,11 @@ module.exports = function(eleventyConfig) {
     });
 
     eleventyConfig.addPlugin(pluginRss);
+
+    eleventyConfig.addNunjucksGlobal("now", function() {
+      const n = new Date();
+      return n.toUTCString();
+    });
 
     // Return your Object options:
     return {

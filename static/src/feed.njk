@@ -14,18 +14,25 @@
   }
 }
 ---
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom" xml:base="{{ metadata.url }}">
-  <title>{{ metadata.title }}</title>
-  <subtitle>{{ metadata.subtitle }}</subtitle>
-  <description>{{ metadata.subtitle }}</description>
-  <link href="{{ permalink | absoluteUrl(metadata.url) }}" rel="self"/>
-  <link href="{{ metadata.url }}"/>
-  <id>{{ metadata.url }}</id>
-  <author>
-    <name>{{ metadata.author.name }}</name>
-    <email>{{ metadata.author.email }}</email>
-  </author>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:googleplay="http://www.google.com/schemas/play-podcasts/1.0" version="2.0">
+  <channel>
+    <title>{{ metadata.title }}</title>
+    <description>{{ metadata.subtitle }}</description>
+    <link href="{{ metadata.url }}"/>
+    <id>{{ metadata.url }}</id>
+    <lastBuildDate>{{ now() }}</lastBuildDate>
+    <image>
+        <url>{{metadata.url}}/council-pods-test-image.jpg</url>
+        <title>{{metadata.title}}</title>
+        <link>{{ metadata.url }}</link>
+        </image>
+    <author>
+        <name>{{ metadata.author.name }}</name>
+        <email>{{ metadata.author.email }}</email>
+    </author>
+    <itunes:category text="Government" />
+    <language>en</language>
+  </channel>
   {%- for meeting in podcastData %}
   <entry>
 
@@ -35,6 +42,9 @@
     <content:encoded>{{meeting.content}}</content:encoded>
     <itunes:summary>{{meeting.content}}</itunes:summary>
     <itunes:explicit>No</itunes:explicit>
+    <pubDate>{{ meeting.isoDate | feedDate }}</pubDate>
+    <link>{{meeting.guid}}</link>
+    <description>{{meeting.content}}</description>
   </entry>
   {%- endfor %}
-</feed>
+</rss>
