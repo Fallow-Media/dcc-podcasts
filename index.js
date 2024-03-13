@@ -325,7 +325,7 @@ const check_for_new = async () => {
 		if (!is_avail(video_link)) continue;
 
 		// Check if the video is new
-		if (!is_new(activity_id, files)) break;
+		if (!is_new(activity_id, files)) continue;
 
 		// Get the meeting info to include with the podcast episode.
 		let meeting_info = get_meeting_info(item, activity_id);
@@ -348,13 +348,10 @@ const check_for_new = async () => {
 		// Convert the videos and upload them to R2
 		for (const activity of newActivities) {
 			await pipeline(activity);
-		}
-		
-		// Save to db and delete the tmp files
-		for (const activity of newActivities) {
 			await save_to_db(activity);
 			await delete_file(`./tmp/${activity.audio_file_name}`);
 		}
+		
 		return true;
 	} else {
 		console.log("No new activities found...");
