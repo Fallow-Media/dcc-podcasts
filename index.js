@@ -36,6 +36,7 @@ const save_to_db = async (meeting) => {
 		transcript: meeting.meeting_info.transcript,
 		size: meeting.meeting_info.enclosure.size
 	};
+	console.log({dataToSave});
 	const supabase = createClient(process.env.SUPA_URL, process.env.SUPA_KEY);
 	const { error } = await supabase.from('meetings').insert(dataToSave);
 	console.log({error});
