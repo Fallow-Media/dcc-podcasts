@@ -303,8 +303,10 @@ const check_for_new = async () => {
 
 	for (const item of dcc_feed.items) {
 
+		i++;
+
 		// Maximum of 10 new items at a time, because Netlify times out the build after 20 minutes.
-		if (i == 1) break;
+		if (i == 11) break;
 
 		// Get the id of this particular meeting
 		let link_split = item.link.split('/');
@@ -318,8 +320,6 @@ const check_for_new = async () => {
 
 		// Create the file names.
 		let audio_file_name = `${activity_id}_${slugify(item.title)}.mp3`;
-
-		console.log({audio_file_name});
 
 		// Make sure the video is available
 		if (!is_avail(video_link)) continue;
@@ -338,7 +338,6 @@ const check_for_new = async () => {
 
 		newActivities.push(activity);
 
-		i++;
 	}
 
 	if (newActivities.length > 0) {

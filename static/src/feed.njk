@@ -18,6 +18,7 @@
   <channel>
     <title>{{ metadata.title }}</title>
     <description>{{ metadata.subtitle }}</description>
+    <website>{{metadata.url}}</website>
     <link href="{{ metadata.url }}"/>
     <id>{{ metadata.url }}</id>
     <lastBuildDate>{{ now() }}</lastBuildDate>
@@ -32,6 +33,13 @@
     </author>
     <itunes:category text="Government" />
     <language>en</language>
+    <itunes:image href="{{metadata.url}}/council-pods-test-image.jpg"/>
+    <itunes:owner>
+      <itunes:name>Fallow Media</itunes:name>
+      <itunes:email>dccmeetings@fallowmedia.com</itunes:email>
+    </itunes:owner>
+    <itunes:author>Fallow Media</itunes:author>
+    <itunes:explicit>no</itunes:explicit>
   {%- for meeting in podcastData %}
   <item>
 
