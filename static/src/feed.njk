@@ -32,7 +32,6 @@
     </author>
     <itunes:category text="Government" />
     <language>en</language>
-  </channel>
   {%- for meeting in podcastData %}
   <item>
 
@@ -47,4 +46,5 @@
     <description>{{meeting.content}}</description>
   </item>
   {%- endfor %}
+  </channel>
 </rss>
