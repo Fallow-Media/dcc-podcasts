@@ -260,7 +260,7 @@ function get_meeting_info(item, activity_id) {
 		guid: item.guid,
 		pubDate: item.pubDate,
 		isoDate: item.isoDate,
-		activity_id: activity_id,
+		activity_id: parseInt(activity_id),
 		transcript: null,
 		enclosure: {
 			url: null,
@@ -282,7 +282,7 @@ const pipeline = async (activity) => {
 
 	await convert(video_link, `./tmp/${audio_file_name}`);
 
-	activity.meeting_info.enclosure.size = get_size(audio_file_name);
+	activity.meeting_info.enclosure.size = await get_size(audio_file_name);
 	activity.meeting_info.enclosure.url = `${space_url}/${audio_file_name}`;
 
 	await upload(`./tmp/${audio_file_name}`, audio_file_name); 
@@ -304,7 +304,7 @@ const check_for_new = async () => {
 	for (const item of dcc_feed.items) {
 
 		// Maximum of 10 new items at a time, because Netlify times out the build after 20 minutes.
-		if (i == 10) break;
+		if (i == 1) break;
 
 		// Get the id of this particular meeting
 		let link_split = item.link.split('/');
