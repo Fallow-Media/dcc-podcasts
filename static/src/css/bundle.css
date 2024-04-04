@@ -83,6 +83,14 @@ main {
     line-height: 1.4;
 }
 
+.about a {
+    color: #d4421e;
+}
+
+.about a:hover {
+    color: #a53418;
+}
+
 @media (min-width: 1200px) {
     main {
         flex-wrap: nowrap;
