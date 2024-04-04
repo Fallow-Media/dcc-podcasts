@@ -27,7 +27,7 @@ const parser = new Parser();
 const save_to_db = async (meeting) => {
 	let dataToSave = {
 		activity_id: meeting.meeting_info.activity_id, 
-		audio_file_url: meeting.audio_file_name, 
+		audio_file_url: `${space_url}/${meeting.audio_file_name}`, 
 		title: meeting.meeting_info.title, 
 		link: meeting.meeting_info.link, 
 		content: meeting.meeting_info.content, 
