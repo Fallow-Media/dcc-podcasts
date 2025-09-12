@@ -9,6 +9,10 @@ require('dotenv').config();
 
 const isProduction = (process.env.NODE_ENV === 'production');
 
+console.log("isProduction: ", isProduction);
+
+const { exec } = require("child_process");
+
 // FFMPEG_PATH='/opt/build/repo/bin/ffmpeg-git-20240213-amd64-static/ffmpeg'
 // FFPROBE_PATH='/opt/build/repo/bin/ffmpeg-git-20240213-amd64-static/ffprobe'
 // FFFASTSTART_PATH='/opt/build/repo/bin/ffmpeg-git-20240213-amd64-static/qt-faststart'
@@ -303,6 +307,8 @@ const check_for_new = async () => {
 
 	for (const item of dcc_feed.items) {
 
+		console.log(item);
+
 		i++;
 
 		// Maximum of 10 new items at a time, because Netlify times out the build after 20 minutes.
@@ -339,6 +345,8 @@ const check_for_new = async () => {
 		newActivities.push(activity);
 
 	}
+
+	console.log({newActivities});
 
 	if (newActivities.length > 0) {
 
