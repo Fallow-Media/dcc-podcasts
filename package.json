@@ -7,15 +7,14 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "serve": "npx @11ty/eleventy --serve --port=8002",
     "build": "node index.js",
-    "fetch": "node fetch.js",
-    "dev": "npm run fetch && npm run serve"
+    "dev": "npm run build && npm run serve"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@11ty/eleventy-plugin-rss": "^1.2.0",
-    "@supabase/supabase-js": "^2.39.7",
     "aws-sdk": "^2.866.0",
+    "better-sqlite3": "^12.6.0",
     "dotenv": "^8.2.0",
     "fluent-ffmpeg": "^2.1.2",
     "node-fetch": "^2.6.1",

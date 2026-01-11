@@ -4,30 +4,13 @@ const ffmpeg = require('fluent-ffmpeg');
 const AWS = require("aws-sdk");
 const fs = require("fs");
 const Eleventy = require("@11ty/eleventy");
-const createClient = require("@supabase/supabase-js").createClient;
 require('dotenv').config();
-
-const isProduction = (process.env.NODE_ENV === 'production');
-
-console.log("isProduction: ", isProduction);
-
-const { exec } = require("child_process");
-
-// FFMPEG_PATH='/opt/build/repo/bin/ffmpeg-git-20240213-amd64-static/ffmpeg'
-// FFPROBE_PATH='/opt/build/repo/bin/ffmpeg-git-20240213-amd64-static/ffprobe'
-// FFFASTSTART_PATH='/opt/build/repo/bin/ffmpeg-git-20240213-amd64-static/qt-faststart'
-
-if (isProduction === true) {
-	exec(`chmod +x ${process.env.FFMPEG_PATH}`);
-	exec(`chmod +x ${process.env.FFPROBE_PATH}`);
-	exec(`chmod +x ${process.env.FFFASTSTART_PATH}`);
-}
 
 // Define the path for the R2 Bucket
 const space_url = process.env.R2_URL;
 const parser = new Parser();
 
-// Save to Supabase
+// Save to the database
 const save_to_db = async (meeting) => {
 	let dataToSave = {
 		activity_id: meeting.meeting_info.activity_id, 
@@ -40,10 +23,21 @@ const save_to_db = async (meeting) => {
 		transcript: meeting.meeting_info.transcript,
 		size: meeting.meeting_info.enclosure.size
 	};
-	console.log({dataToSave});
-	const supabase = createClient(process.env.SUPA_URL, process.env.SUPA_KEY);
-	const { error } = await supabase.from('meetings').insert(dataToSave);
-	console.log({error});
+	
+	const db = require('better-sqlite3')('meetings.db');
+	db.pragma('journal_mode = WAL');
+
+	const createTable = "CREATE TABLE IF NOT EXISTS meetings('activity_id' integer PRIMARY KEY, 'audio_file_url' varchar, 'title' varchar, 'link' varchar, 'content' varchar, 'guid' varchar, 'isoDate' varchar, 'transcript' varchar, 'size' integer);"
+	db.exec(createTable);
+
+	const insert = db.prepare('INSERT INTO meetings (activity_id, audio_file_url, title, link, content, guid, isoDate, transcript, size) VALUES (@activity_id, @audio_file_url, @title, @link, @content, @guid, @isoDate, @transcript, @size)');
+
+	const insertMeeting = db.transaction((meeting) => {
+		insert.run(meeting);
+	});
+
+	insertMeeting(dataToSave);
+
 };
 
 /**
@@ -307,8 +301,6 @@ const check_for_new = async () => {
 
 	for (const item of dcc_feed.items) {
 
-		console.log(item);
-
 		i++;
 
 		// Maximum of 10 new items at a time, because Netlify times out the build after 20 minutes.
@@ -361,13 +353,11 @@ const check_for_new = async () => {
 		
 		return true;
 	} else {
-		console.log("No new activities found...");
 		return false;
 	}
 }
 
-const build = async () => {
-	
+(async () => {
 	let elev = new Eleventy( "./static/src", "./static/dist", {
 		// --quiet
 		quietMode: true,
@@ -379,10 +369,14 @@ const build = async () => {
 	
 	// Check for new episodes, convert and add to the feed if so.
 	console.log("Checking for new pods...");
-	await check_for_new();
+	let newEps = await check_for_new();
 
-	// Rebuild the site.
-	elev.write();
-}
-
-build();
+	if (newEps === true) {
+		console.log("New episodes added, rebuilding site...");
+		// Rebuild the site.
+		await elev.write();
+	} else {
+		console.log("No new episodes, skipping rebuild.");
+	}
+	process.exit(0);
+})();
